@@ -1,6 +1,6 @@
 CUDA_VISIBLE_DEVICES=0 /home/mrigankraman/anaconda3/envs/llamax/bin/python train_distil_final.py \
     --model_name_or_path meta-llama/Llama-2-13b-hf \
-    --data_path oasst1 \
+    --data_path platypus \
     --bf16 True \
     --output_dir /home/mrigankraman/filestore-ai/mrigank/output_llama_13b_guanaco \
     --num_train_epochs 10 \
@@ -15,7 +15,7 @@ CUDA_VISIBLE_DEVICES=0 /home/mrigankraman/anaconda3/envs/llamax/bin/python train
     --learning_rate 2e-4 \
     --weight_decay 0.0 \
     --warmup_ratio 0.04 \
-    --lr_scheduler_type "constant" \
+    --lr_scheduler_type "cosine" \
     --logging_steps 10 \
     --tf32 True \
     --model_max_length 2048 \
@@ -24,7 +24,7 @@ CUDA_VISIBLE_DEVICES=0 /home/mrigankraman/anaconda3/envs/llamax/bin/python train
     --optim "paged_adamw_32bit" \
     --max_grad_norm 0.3 \
     --lora_dropout 0.05 \
-    --lora_r 64 \
+    --lora_r 256 \
     --lora_alpha 16 \
     --bits 4 \
     --double_quant \
