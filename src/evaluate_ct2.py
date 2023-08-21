@@ -21,7 +21,7 @@ prompter = Prompter(prompt_template)
 import ctranslate2
 import transformers
 from os.path import expanduser
-path = expanduser("/home/mrigankraman/filestore-ai/mrigank/llama2-13b-chat-chkpt-8600-merge_torch_float32-ct2-bfloat16")
+path = <ct2_model_path>
 generator = ctranslate2.Generator(path, device="cuda")
 
 base_model="meta-llama/Llama-2-13b-chat-hf"
@@ -44,7 +44,7 @@ generation_config = {
 import pickle
 from datasets import load_dataset
 from datasets import Dataset, DatasetDict
-pickled_data = pickle.load(open("/home/mrigankraman/filestore-ai/davisliang/data/llm/presidio10k/soap/valid/valid_RoS_Rest_split_no_newlines.pkl","rb"))
+pickled_data = pickle.load(open(<val_data_path>,"rb"))
 data_temp = Dataset.from_list(pickled_data)
 data = DatasetDict({'train':data_temp})
 data
