@@ -2,12 +2,13 @@
 # Proposal
 Team name: ReaLLM Conquerors
 
-We plan to take two directions for this competition
+We plan to explore two parallel directions for this competition:
+
 ## 1. Dataset Curation
 
 ## 2. Model Optimization
 One direction we are exploring is a Mixture of Expert style model with LoRA adapters. Each adapter will be finetuned on a different dataset and combined together. There exists some [work](https://arxiv.org/pdf/2307.13269.pdf) in this direction.
-Additionally, we are trying out some model level optimizations to fit larger models on the GPU and to train for more epochs within a day. 
+Additionally, we are trying out some model-level optimizations to fit larger models on the GPU and to improve training speed. 
 Some modifications we are considering:
 1. **Quantization** - We plan to use [QLoRA](https://arxiv.org/pdf/2305.14314.pdf) for finetuning our models on the dataset. QLoRA uses 4bit Normal Floats, Double Quantization, and paged optimizers to fit a 60B model on a 48GB GPU.
 2. **Pruning** - We plan to explore some methods to perform structured pruning techniques to reduce memory during finetuning.
