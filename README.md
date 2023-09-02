@@ -20,5 +20,7 @@ Some modifications we are considering:
 
 Using all these three we believe we will be able to train a ~30B Llama models on a A100 40GB GPU. We plan on trying both codellama 34B and llama2 13B models and use one of them based on the tradeoff between training time and performance. Depending on how much time each part takes, we will decide on how to proceed.
 
+The AWS account for credits is kousikr@cs.cmu.edu
+
 
 
