@@ -24,7 +24,7 @@ from typing import List, Optional, Tuple, Union
 import pickle
 import pathlib
 import os
-from MPTForDistil.modeling_mpt import MPTForCausalLM
+# from MPTForDistil.modeling_mpt import MPTForCausalLM
 from peft import (
     prepare_model_for_kbit_training,
     LoraConfig,
@@ -93,6 +93,9 @@ class DataArguments:
     logits_path: Optional[str] = field(default=None)
     num_workers: int = field(default=8)
     prefectch_factor: int = field(default=16)
+    lazy_preprocess: bool = field(default=False)
+    cluster_id: Optional[int] = field(default=-1)
+    cluster_path: Optional[str] = field(default=None)
 
 
 @dataclass
@@ -127,6 +130,9 @@ class SavePeftModelCallback(transformers.TrainerCallback):
         pytorch_model_path = os.path.join(checkpoint_folder, "pytorch_model.bin")
         if os.path.exists(pytorch_model_path):
             os.remove(pytorch_model_path)
+        optimizer_path = os.path.join(checkpoint_folder, "optimizer.pt")
+        if os.path.exists(optimizer_path):
+            os.remove(optimizer_path)
 
     def on_save(self, args, state, control, **kwargs):
         self.save_model(args, state, kwargs)
@@ -169,51 +175,51 @@ def find_all_linear_names(model):
 
 
 def get_model_and_tokenizer(model_args, training_args, data_args):
-    if "mpt" in model_args.model_name_or_path.lower():
-        compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
-        config = transformers.AutoConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
-        config.attn_config['attn_impl'] = 'triton'
-        config.init_device = 'cuda:'+str(int(os.environ.get("LOCAL_RANK") or 0))
-        quantization_config=transformers.BitsAndBytesConfig(
-                load_in_4bit=model_args.bits == 4,
-                load_in_8bit=model_args.bits == 8,
-                llm_int8_threshold=6.0,
-                llm_int8_has_fp16_weight=False,
-                bnb_4bit_compute_dtype=compute_dtype,
-                bnb_4bit_use_double_quant=model_args.double_quant,
-                bnb_4bit_quant_type=model_args.quant_type,
-            )
-        model = MPTForCausalLM.from_pretrained(model_args.model_name_or_path, config = config, torch_dtype=torch.bfloat16, trust_remote_code=True, quantization_config=quantization_config)
-        tokenizer = transformers.AutoTokenizer.from_pretrained(
-        model_args.teacher_model_name_or_path if data_args.logits_path is not None else model_args.model_name_or_path,
-        cache_dir=training_args.cache_dir,
-        model_max_length=training_args.model_max_length,
-        padding_side="right",
-        )
-        if model_args.use_lora:
-            print("loading apdapters")
-            modules = find_all_linear_names(model)
-            if model_args.bits < 16:
-                model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing)
-            config = LoraConfig(
-                r=model_args.lora_r,
-                lora_alpha=model_args.lora_alpha,
-                target_modules=modules,
-                lora_dropout=model_args.lora_dropout,
-                bias=model_args.lora_bias,
-                task_type="CAUSAL_LM",
-            )
-            model = get_peft_model(model, config)
-            for name, module in model.named_modules():
-                if isinstance(module, LoraLayer):
-                    module = module.to(torch.bfloat16)
-                # if 'norm' in name:
-                #     module = module.to(torch.float32)
-                if 'lm_head' in name or 'embed_tokens' in name:
-                    if hasattr(module, 'weight'):
-                        if module.weight.dtype == torch.float32:
-                            module = module.to(torch.bfloat16) 
-    elif "llama" in model_args.model_name_or_path.lower():
+    # if "mpt" in model_args.model_name_or_path.lower():
+    #     compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
+    #     config = transformers.AutoConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
+    #     config.attn_config['attn_impl'] = 'triton'
+    #     config.init_device = 'cuda:'+str(int(os.environ.get("LOCAL_RANK") or 0))
+    #     quantization_config=transformers.BitsAndBytesConfig(
+    #             load_in_4bit=model_args.bits == 4,
+    #             load_in_8bit=model_args.bits == 8,
+    #             llm_int8_threshold=6.0,
+    #             llm_int8_has_fp16_weight=False,
+    #             bnb_4bit_compute_dtype=compute_dtype,
+    #             bnb_4bit_use_double_quant=model_args.double_quant,
+    #             bnb_4bit_quant_type=model_args.quant_type,
+    #         )
+    #     model = MPTForCausalLM.from_pretrained(model_args.model_name_or_path, config = config, torch_dtype=torch.bfloat16, trust_remote_code=True, quantization_config=quantization_config)
+    #     tokenizer = transformers.AutoTokenizer.from_pretrained(
+    #     model_args.teacher_model_name_or_path if data_args.logits_path is not None else model_args.model_name_or_path,
+    #     cache_dir=training_args.cache_dir,
+    #     model_max_length=training_args.model_max_length,
+    #     padding_side="right",
+    #     )
+    #     if model_args.use_lora:
+    #         print("loading apdapters")
+    #         modules = find_all_linear_names(model)
+    #         if model_args.bits < 16:
+    #             model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=training_args.gradient_checkpointing)
+    #         config = LoraConfig(
+    #             r=model_args.lora_r,
+    #             lora_alpha=model_args.lora_alpha,
+    #             target_modules=modules,
+    #             lora_dropout=model_args.lora_dropout,
+    #             bias=model_args.lora_bias,
+    #             task_type="CAUSAL_LM",
+    #         )
+    #         model = get_peft_model(model, config)
+    #         for name, module in model.named_modules():
+    #             if isinstance(module, LoraLayer):
+    #                 module = module.to(torch.bfloat16)
+    #             # if 'norm' in name:
+    #             #     module = module.to(torch.float32)
+    #             if 'lm_head' in name or 'embed_tokens' in name:
+    #                 if hasattr(module, 'weight'):
+    #                     if module.weight.dtype == torch.float32:
+    #                         module = module.to(torch.bfloat16) 
+    if "llama" in model_args.model_name_or_path.lower():
         compute_dtype = (torch.float16 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32))
         if os.environ.get('LOCAL_RANK') is not None:
             local_rank = int(os.environ.get('LOCAL_RANK', '0'))
@@ -225,7 +231,7 @@ def get_model_and_tokenizer(model_args, training_args, data_args):
             cache_dir=training_args.cache_dir,
             load_in_4bit=model_args.bits == 4,
             load_in_8bit=model_args.bits == 8,
-            device_map=device_map,
+            # device_map=device_map,
             quantization_config=transformers.BitsAndBytesConfig(
                 load_in_4bit=model_args.bits == 4,
                 load_in_8bit=model_args.bits == 8,
@@ -235,6 +241,7 @@ def get_model_and_tokenizer(model_args, training_args, data_args):
                 bnb_4bit_use_double_quant=model_args.double_quant,
                 bnb_4bit_quant_type=model_args.quant_type,
             ),
+            device_map=device_map,
             torch_dtype=(torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32)),
             trust_remote_code=model_args.trust_remote_code,
             use_auth_token=model_args.use_auth_token
@@ -245,6 +252,7 @@ def get_model_and_tokenizer(model_args, training_args, data_args):
             model_max_length=training_args.model_max_length,
             padding_side="right",
             use_fast=False,
+            legacy=False,
         )
         if model_args.use_lora:
             print("loading apdapters")
@@ -471,10 +479,11 @@ def preprocess(
 class SupervisedDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
-    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, logits_path: str):
+    def __init__(self, data_path: str, tokenizer: transformers.PreTrainedTokenizer, logits_path: str, lazy_preprocess: bool = False, cluster_path: str = None, cluster_id: int = -1):
         super(SupervisedDataset, self).__init__()
         logging.warning("Loading data...")
         self.logits_path = logits_path
+        self.lazy_preprocess = lazy_preprocess
         if "orca" in data_path:
             train_dataset = load_dataset("Open-Orca/OpenOrca",  split='train[:5%]')
             with open("train_indices.pkl", "rb") as fp:
@@ -512,6 +521,13 @@ class SupervisedDataset(Dataset):
                 with open(logits_path+"/all_indices.pkl", "rb") as fp:
                     train_indices = pickle.load(fp)
                 list_data_dict = [list_data_dict[i] for i in train_indices]
+            if cluster_path is not None:
+                cluster_indices = torch.load(cluster_path)
+                final_data_dict = []
+                for idx,index in enumerate(cluster_indices):
+                    if index == cluster_id:
+                        final_data_dict.append(list_data_dict[idx])
+                list_data_dict = final_data_dict
             logging.warning("Formatting inputs...")
             prompt_input, prompt_no_input = PROMPT_DICT["prompt_input"], PROMPT_DICT["prompt_no_input"]
             sources = [
@@ -522,32 +538,54 @@ class SupervisedDataset(Dataset):
 
 
         logging.warning("Tokenizing inputs... This may take some time...")
-        self.sources = sources
-        self.targets = targets
-        self.tokenizer = tokenizer
-        print(len(self.sources))
+        if self.lazy_preprocess:
+            self.sources = sources
+            self.targets = targets
+            self.tokenizer = tokenizer
+            print(len(self.sources))
+        else:
+            self.data_dict = preprocess(sources, targets, tokenizer)
+            print(len(sources))
 
     def __len__(self):
-        return len(self.sources)
+        if self.lazy_preprocess:
+            return len(self.sources)
+        else:
+            return len(self.data_dict["input_ids"])
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-        ret = preprocess([self.sources[i]], [self.targets[i]], self.tokenizer)
+        # ret = preprocess([self.sources[i]], [self.targets[i]], self.tokenizer)
         if self.logits_path is not None:
             teacher_logits_indices = torch.load(self.logits_path+"/logits_indices_"+str(i)+".pt")
             teacher_logits_values = torch.load(self.logits_path+"/logits_values_"+str(i)+".pt")
             teacher_logits_shape = torch.load(self.logits_path+"/logits_shape_"+str(i)+".pt")
             teacher_logits = torch.sparse_coo_tensor(teacher_logits_indices, teacher_logits_values, teacher_logits_shape)
             teacher_logits = teacher_logits.to_dense()
-            return dict(
-                input_ids=ret["input_ids"][0],
-                labels=ret["labels"][0],
-                teacher_logits=teacher_logits,
-                )
+            if self.lazy_preprocess:
+                ret = preprocess([self.sources[i]], [self.targets[i]], self.tokenizer)
+                return dict(
+                    input_ids=ret["input_ids"][0],
+                    labels=ret["labels"][0],
+                    teacher_logits=teacher_logits,
+                    )
+            else:
+                return dict(
+                    input_ids=self.data_dict["input_ids"][i],
+                    labels=self.data_dict["labels"][i],
+                    teacher_logits=teacher_logits,
+                    )
         else:
-            return dict(
-                input_ids=ret["input_ids"][0],
-                labels=ret["labels"][0],
-                )
+            if self.lazy_preprocess:
+                ret = preprocess([self.sources[i]], [self.targets[i]], self.tokenizer)
+                return dict(
+                    input_ids=ret["input_ids"][0],
+                    labels=ret["labels"][0],
+                    )
+            else:
+                return dict(
+                    input_ids=self.data_dict["input_ids"][i],
+                    labels=self.data_dict["labels"][i],
+                    )
 
 @dataclass
 class DataCollatorForSupervisedDataset(object):
@@ -586,7 +624,7 @@ class DataCollatorForSupervisedDataset(object):
 
 def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path, logits_path=data_args.logits_path)
+    train_dataset = SupervisedDataset(tokenizer=tokenizer, data_path=data_args.data_path, logits_path=data_args.logits_path, lazy_preprocess=data_args.lazy_preprocess, cluster_path=data_args.cluster_path, cluster_id=data_args.cluster_id)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(train_dataset=train_dataset, eval_dataset=train_dataset, data_collator=data_collator)
 
@@ -599,9 +637,9 @@ def train():
     if data_args.logits_path is not None:
         if "llama" in model_args.model_name_or_path.lower():
             transformers.models.llama.modeling_llama.LlamaForCausalLM.forward = update_llama_forward(alpha_distil=model_args.alpha_distil, alpha_hard=model_args.alpha_hard, temperature=model_args.temperature)
-        elif "mpt" in model_args.model_name_or_path.lower():
-            MPTForCausalLM.forward = update_mpt_forward(alpha_distil=model_args.alpha_distil, alpha_hard=model_args.alpha_hard, temperature=model_args.temperature)
-        transformers.trainer.Trainer.get_train_dataloader = create_new_dataloader(num_workers=data_args.num_workers, prefetch_factor=data_args.prefectch_factor)
+        # elif "mpt" in model_args.model_name_or_path.lower():
+        #     MPTForCausalLM.forward = update_mpt_forward(alpha_distil=model_args.alpha_distil, alpha_hard=model_args.alpha_hard, temperature=model_args.temperature)
+    transformers.trainer.Trainer.get_train_dataloader = create_new_dataloader(num_workers=data_args.num_workers, prefetch_factor=data_args.prefectch_factor)
     model, tokenizer = get_model_and_tokenizer(model_args, training_args, data_args)
     if tokenizer.pad_token is None:
         smart_tokenizer_and_embedding_resize(
@@ -616,7 +654,7 @@ def train():
                 "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
                 "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
                 "unk_token": tokenizer.convert_ids_to_tokens(
-                    model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
+                    tokenizer.pad_token_id
                 ),
         })
     elif "llama" in model_args.model_name_or_path:
@@ -625,6 +663,7 @@ def train():
                 "eos_token": DEFAULT_EOS_TOKEN,
                 "bos_token": DEFAULT_BOS_TOKEN,
                 "unk_token": DEFAULT_UNK_TOKEN,
+                "pad_token": DEFAULT_PAD_TOKEN,
             }
         )
 

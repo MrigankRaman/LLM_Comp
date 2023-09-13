@@ -1,6 +1,6 @@
-python eval_mmlu.py \
+CUDA_VISIBLE_DEVICES=5,6 python eval_mmlu.py \
     --model_name_or_path meta-llama/Llama-2-13b-hf \
-    --adapter_path /home/mrigankraman/filestore-ai/mrigank/output_llama_13b_guanaco/checkpoint-3200 \
+    --adapter_path /data/mrigankr/llm_comp/ours_platypus_13B_cluster_0/checkpoint-1600 \
     --use_auth \
     --output_dir ./output/llama-2-guanaco-7b \
     --logging_steps 10 \
@@ -11,7 +11,7 @@ python eval_mmlu.py \
     --evaluation_strategy steps \
     --eval_dataset_size 1024 \
     --max_eval_samples 1000 \
-    --per_device_eval_batch_size 4 \
+    --per_device_eval_batch_size 1 \
     --max_new_tokens 32 \
     --dataloader_num_workers 1 \
     --group_by_length \
@@ -26,7 +26,7 @@ python eval_mmlu.py \
     --double_quant \
     --quant_type nf4 \
     --bf16 \
-    --bits 16 \
+    --bits 4 \
     --warmup_ratio 0.03 \
     --lr_scheduler_type constant \
     --gradient_checkpointing \
