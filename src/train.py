@@ -124,8 +124,8 @@ class SavePeftModelCallback(transformers.TrainerCallback):
         else:
             checkpoint_folder = os.path.join(args.output_dir, f"{PREFIX_CHECKPOINT_DIR}-{state.global_step}")
 
-        peft_model_path = os.path.join(checkpoint_folder, "adapter_model")
-        kwargs["model"].save_pretrained(peft_model_path)
+        # peft_model_path = os.path.join(checkpoint_folder, "adapter_model")
+        # kwargs["model"].save_pretrained(peft_model_path)
 
         pytorch_model_path = os.path.join(checkpoint_folder, "pytorch_model.bin")
         if os.path.exists(pytorch_model_path):
@@ -271,8 +271,8 @@ def get_model_and_tokenizer(model_args, training_args, data_args):
             for name, module in model.named_modules():
                 if isinstance(module, LoraLayer):
                     module = module.to(torch.bfloat16)
-                # if 'norm' in name:
-                #     module = module.to(torch.float32)
+                if 'norm' in name:
+                    module = module.to(torch.bfloat16)
                 if 'lm_head' in name or 'embed_tokens' in name:
                     if hasattr(module, 'weight'):
                         if module.weight.dtype == torch.float32:
@@ -639,7 +639,7 @@ def train():
             transformers.models.llama.modeling_llama.LlamaForCausalLM.forward = update_llama_forward(alpha_distil=model_args.alpha_distil, alpha_hard=model_args.alpha_hard, temperature=model_args.temperature)
         # elif "mpt" in model_args.model_name_or_path.lower():
         #     MPTForCausalLM.forward = update_mpt_forward(alpha_distil=model_args.alpha_distil, alpha_hard=model_args.alpha_hard, temperature=model_args.temperature)
-    transformers.trainer.Trainer.get_train_dataloader = create_new_dataloader(num_workers=data_args.num_workers, prefetch_factor=data_args.prefectch_factor)
+        transformers.trainer.Trainer.get_train_dataloader = create_new_dataloader(num_workers=data_args.num_workers, prefetch_factor=data_args.prefectch_factor)
     model, tokenizer = get_model_and_tokenizer(model_args, training_args, data_args)
     if tokenizer.pad_token is None:
         smart_tokenizer_and_embedding_resize(

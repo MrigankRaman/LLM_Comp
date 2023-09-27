@@ -1,0 +1,8 @@
+torch
+protobuf
+sentencepiece
+ctranslate2
+transformers
+ipdb
+gdown
+bert_score

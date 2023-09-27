@@ -1,0 +1,3 @@
+[submodule "sample-submissions/lit-gpt/lit-gpt"]
+	path = sample-submissions/lit-gpt/lit-gpt
+	url = https://github.com/Lightning-AI/lit-gpt
