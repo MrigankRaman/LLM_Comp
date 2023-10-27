@@ -126,7 +126,7 @@ def toysubmission_generate(
         # ipdb.set_trace()
         # stop_words = tokenizer
         stopping_criteria = StoppingCriteriaList([StoppingCriteriaSub(stops = torch.tensor([[271], [151643], [1406], [382]]), tokenizer=tokenizer)])
-        idx = model.generate(input_ids=idx, max_new_tokens=max_returned_tokens - T, temperature=0.3, top_k=top_k, do_sample=True, stopping_criteria=stopping_criteria)
+        idx = model.generate(input_ids=idx, max_new_tokens=max_returned_tokens - T, temperature=temperature, top_k=top_k, do_sample=True, stopping_criteria=stopping_criteria)
         # idx = model.generate(input_ids=idx, max_new_tokens=max_returned_tokens - T, num_beams=2, no_repeat_ngram_size=2, early_stopping=True)
     # idx = tokenizer.decode(tokenizer.decode(pred.cpu()[0], skip_special_tokens=True))
     # idx = torch.cat([idx, torch.as_tensor(output[0].sequences_ids[0], device=idx.device)])
