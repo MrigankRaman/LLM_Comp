@@ -1,0 +1,16 @@
+torch
+protobuf
+sentencepiece
+ctranslate2
+transformers
+ipdb
+gdown
+bert_score
+faiss-gpu
+datasets
+tiktoken
+einops 
+ninja
+packaging
+transformers_stream_generator
+nltk
