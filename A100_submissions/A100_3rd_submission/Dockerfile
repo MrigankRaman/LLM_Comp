@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir --upgrade -r fast_api_requirements.txt
 # Install any needed packages specified in requirements.txt that come from lit-gpt
 RUN apt-get update && apt-get install -y git zip unzip
 COPY ./requirements.txt requirements.txt
-RUN pip install -r requirements.txt huggingface_hub sentencepiece accelerate bitsandbytes scipy
+RUN pip install -r requirements.txt huggingface_hub sentencepiece accelerate bitsandbytes==0.41.1 scipy
 RUN pip install flash-attn --no-build-isolation
 RUN pip install git+https://github.com/huggingface/peft.git
 
