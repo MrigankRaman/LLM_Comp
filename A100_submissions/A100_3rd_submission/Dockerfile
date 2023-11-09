@@ -41,6 +41,7 @@ COPY ./helper.py /submission/helper.py
 COPY ./helper_torch.py /submission/helper_torch.py
 COPY ./api.py /submission/api.py
 COPY ./postprocess.py /submission/postprocess.py
+COPY ./correct_to_misspelling.json /submission/correct_to_misspelling.json
 # RUN gdown 1JllV7nceWaDXWoMZiOVn9X2b_ShZ3_I9
 # RUN unzip /submission/qwen_14B_ours_averaged_model.zip
 # RUN rm /submission/qwen_14B_ours_averaged_model.zip
