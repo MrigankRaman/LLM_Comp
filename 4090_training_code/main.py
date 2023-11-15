@@ -32,6 +32,7 @@ from peft import (
     get_peft_model,
     PeftModel
 )
+import subprocess
 # from InternLM.modeling_internlm import InternLMForCausalLM
 # support running without installing as a package
 wd = Path(__file__).parent.parent.resolve()
@@ -43,6 +44,7 @@ torch.set_float32_matmul_precision("high")
 from peft.tuners.lora import LoraLayer
 # from lit_gpt import GPT, Tokenizer, Config
 # from lit_gpt.utils import lazy_load, quantization
+from postprocess import postprocess
 # Toy submission imports
 from helper_torch import toysubmission_generate
 from api import (
@@ -58,7 +60,10 @@ from api import (
 #         replace_mistral_attn_with_flash_attn,
 #     )
 # replace_mistral_attn_with_flash_attn()
-
+# command = "bash train.sh"
+# subprocess.run(command, text=True, check=True, shell=True, stdout=subprocess.PIPE)
+import os
+os.system("bash train.sh")
 app = FastAPI()
 
 logger = logging.getLogger(__name__)
@@ -269,6 +274,12 @@ async def process_request(input_data: ProcessRequest) -> ProcessResponse:
         output = output.split(" ")[-1]
     else:
         output = output.split("\n\n")[0]
+        if "summarize" in prompt.split("\n\n")[-1]:
+            print("performing postprocessing")
+            try:
+                prompt = postprocess(prompt, change_gender=True)
+            except:
+                pass
     logger.info(f"Memory used: {torch.cuda.max_memory_reserved() / 1e9:.02f} GB")
     generated_tokens = []
     for t, lp, tlp in zip(tokens, logprobs, top_logprobs):

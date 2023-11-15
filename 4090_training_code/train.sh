@@ -17,7 +17,6 @@ python train_old.py \
     --warmup_ratio 0.04 \
     --lr_scheduler_type "cosine" \
     --logging_steps 10 \
-    --tf32 True \
     --adam_beta2 0.95 \
     --model_max_length 1600 \
     --gradient_checkpointing True \
@@ -31,6 +30,7 @@ python train_old.py \
     --use_lora True \
     --ddp_find_unused_parameters False \
     --optim paged_adamw_32bit \
+    --tf32 True \
     # --deepspeed /home/mrigankr/llm_comp/LLM_Comp/src/configs/deepspeed_config.json \
     # --optim "adamw_torch" \
     # --fsdp_transformer_layer_cls_to_wrap 'LlamaDecoderLayer' \

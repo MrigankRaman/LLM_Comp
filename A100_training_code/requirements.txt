@@ -1,8 +1,8 @@
-torch
+torch==2.0.1
 protobuf
 sentencepiece
 ctranslate2
-transformers
+transformers==4.34.0
 ipdb
 gdown
 bert_score

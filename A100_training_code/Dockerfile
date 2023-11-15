@@ -22,7 +22,7 @@ RUN git clone https://github.com/Dao-AILab/flash-attention.git
 RUN pip install flash-attention/csrc/xentropy
 RUN pip install flash-attention/csrc/rotary
 RUN pip install flash-attention/csrc/layer_norm
-RUN pip install flash-attention/csrc/fused_dense_lib
+# RUN pip install flash-attention/csrc/fused_dense_lib
 # get open-llama weights: https://github.com/Lightning-AI/lit-gpt/blob/main/tutorials/download_openllama.md
 # RUN python scripts/download.py --repo_id openlm-research/open_llama_3b
 # RUN python scripts/convert_hf_checkpoint.py --checkpoint_dir checkpoints/openlm-research/open_llama_3b
@@ -49,7 +49,7 @@ COPY ./api.py /submission/api.py
 COPY ./postprocess.py /submission/postprocess.py
 
 RUN gdown 1E43WbnyL8iXzOw21ye95VdJAYyra6ewd
-RUN bash /submission/train.sh
+# RUN bash /submission/train.sh
 # COPY ./helper_torch.py /submission/helper_torch.py
 # COPY ./api.py /submission/api.py
 # COPY ./postprocess.py /submission/postprocess.py
@@ -65,4 +65,4 @@ RUN bash /submission/train.sh
 # RUN unzip /submission/bge-small-faiss.zip
 # RUN unzip /submission/all-paraphs-parsed-expanded.zip
 # Run the server
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD bash train.sh

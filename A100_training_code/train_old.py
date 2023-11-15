@@ -322,7 +322,8 @@ def get_model_and_tokenizer(model_args, training_args, data_args):
             device_map=device_map,
             torch_dtype=(torch.float32 if training_args.fp16 else (torch.bfloat16 if training_args.bf16 else torch.float32)),
             trust_remote_code=True,
-            use_auth_token=model_args.use_auth_token,
+            # use_auth_token=model_args.use_auth_token,
+            token='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'
             # bf16=True
         )
         if "llama" in model_args.model_name_or_path.lower():
