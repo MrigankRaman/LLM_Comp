@@ -65,4 +65,4 @@ RUN gdown 1E43WbnyL8iXzOw21ye95VdJAYyra6ewd
 # RUN unzip /submission/bge-small-faiss.zip
 # RUN unzip /submission/all-paraphs-parsed-expanded.zip
 # Run the server
-CMD bash train.sh
+CMD bash 
