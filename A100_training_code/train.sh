@@ -2,7 +2,7 @@ python train_old.py \
     --model_name_or_path Qwen/Qwen-14B \
     --data_path filtered_data_qwen_2000.jsonl \
     --bf16 True \
-    --output_dir /mnt/shared \
+    --output_dir qwen_ours_3e-5_new \
     --max_steps 2345 \
     --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 1 \
