@@ -68,7 +68,7 @@ logging.basicConfig(level=logging.INFO)
 
 model_path = 'Qwen/Qwen-14B'
 device_map = "auto"
-adapter_path = "checkpoint_qwen_2340_4bit"
+adapter_path = "veekaybee/mrigankraman-4090"
 config = transformers.AutoConfig.from_pretrained(model_path, trust_remote_code=True)
 model1 = AutoModelForCausalLM.from_pretrained(model_path, config = config, torch_dtype=torch.bfloat16, trust_remote_code=True, device_map=device_map, load_in_4bit=True)
 print("loading adapters")

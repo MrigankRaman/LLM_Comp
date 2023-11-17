@@ -27,9 +27,10 @@ RUN pip install git+https://github.com/huggingface/peft.git
 # Copy over single file server
 # ADD InternLM /submission/InternLM
 
-RUN gdown 1wKY9c3aVsDdBBArgh1hl_PryqQ4iXjDQ
-RUN unzip /submission/checkpoint_qwen_2340_4bit.zip
-RUN rm /submission/checkpoint_qwen_2340_4bit.zip
+#COPY checkpoint_qwen_2340_4bit.zip .
+# RUN gdown 1wKY9c3aVsDdBBArgh1hl_PryqQ4iXjDQ
+#RUN unzip checkpoint_qwen_2340_4bit.zip
+#RUN rm checkpoint_qwen_2340_4bit.zip
 
 COPY ./mistral_flash_attn_patch.py /submission/mistral_flash_attn_patch.py
 COPY ./main.py /submission/main.py

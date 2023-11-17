@@ -27,9 +27,11 @@ RUN pip install git+https://github.com/huggingface/peft.git
 # Copy over single file server
 # ADD InternLM /submission/InternLM
 
-RUN gdown 10FhyK5l2C6eVYEy6XyLrpGVZ_qsfbyzt
-RUN unzip /submission/checkpoint_qwen_2340.zip
-RUN rm /submission/checkpoint_qwen_2340.zip
+# Now pulling from HuggingFace with 2340 checkpoint
+# COPY checkpoint_qwen_2340_4bit.zip .
+# RUN gdown 10FhyK5l2C6eVYEy6XyLrpGVZ_qsfbyzt
+# RUN unzip checkpoint_qwen_2340_4bit.zip
+# RUN rm checkpoint_qwen_2340_4bit.zip
 
 RUN gdown 1O5D9wLd-hmvEKpkCj4dzy5407HpweDvW
 RUN unzip /submission/checkpoint-4940_mistral.zip
