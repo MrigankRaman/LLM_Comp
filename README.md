@@ -16,3 +16,13 @@ To download the dataset:
 ```bash
 gdown 1E43WbnyL8iXzOw21ye95VdJAYyra6ewd
 ```
+## To recreate our dataset
+the same environment as training should work
+cd data/
+```
+bash create_dataset.sh
+```
+
+Disclaimer: There have some slight changes to reclor and ARB dataset since we first created the dataset. So there will be 11 fewer examples in the recreation than the one which you download from google drive. But that should not affect reproduction that much.
+
+
