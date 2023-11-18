@@ -63,4 +63,4 @@ RUN gdown 1E43WbnyL8iXzOw21ye95VdJAYyra6ewd
 # RUN unzip /submission/all-paraphs-parsed-expanded.zip
 # Run the server
 # CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
-#CMD bash train.sh
+CMD bash train.sh
