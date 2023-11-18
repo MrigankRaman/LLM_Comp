@@ -1,4 +1,4 @@
-/home/mrigankr/Apps/anaconda3/envs/neurips/bin/python train_old.py \
+python train_old.py \
     --model_name_or_path Qwen/Qwen-14B \
     --data_path filtered_data_qwen_2000.jsonl \
     --bf16 True \
